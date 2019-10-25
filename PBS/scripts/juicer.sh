@@ -77,11 +77,11 @@ echo "$0 $@"
 # set global tmpdir so no problems with /var/tmp
 ## use cluster load commands:
 #usePath=""
-load_bwa="module load bwa/0.7.15"
-load_java='module load java/jdk1.8.0_131'
+load_bwa="module load BWA/0.7.17"
+load_java='module load java/jdk1.8.0_60'
 #load_cluster=""
 #load_coreutils=""
-load_cuda='module load cuda/7.5.18/gcc/4.4.7'
+load_cuda='module load cuda/7.5'
 
 # Juicer directory, contains scripts/, references/, and restriction_sites/
 # can also be set in options via -D
