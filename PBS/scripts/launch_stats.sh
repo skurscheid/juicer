@@ -30,11 +30,12 @@ echo $waitstring2
 timestamp=$(date +"%s" | cut -c 4-10)
 qsub <<DOSTAT
 #PBS -S /bin/bash
-#PBS -q batch
-#PBS -l nodes=1:ppn=1:AMD
+#PBS -q biodev
+#PBS -l ncpus=1
 #PBS -l mem=1gb
 #PBS -l $walltime
 #PBS -o ${logdir}/${timestamp}_launch_${groupname}.log
+#PBS -e ${logdir}/${timestamp}_launch_${groupname}.err
 #PBS -j oe
 #PBS -N Lnch_${groupname}
 ${waitstring2}
@@ -57,7 +58,7 @@ echo "start sbumitting stats job"
 qsub <<STATS0
 	#PBS -S /bin/bash
 	#PBS -q $queue
-	#PBS -l nodes=1:ppn=1:AMD
+	#PBS -l ncpus=1
 	#PBS -l mem=20gb
 	#PBS -l $walltime
 	\${waitstring22}
@@ -81,7 +82,7 @@ STATS0
 qsub <<STATS30
 	#PBS -S /bin/bash
 	#PBS -q $queue
-	#PBS -l nodes=1:ppn=1:AMD
+	#PBS -l ncpus=1
 	#PBS -l mem=20gb
 	#PBS -l $walltime
 	#PBS -o ${logdir}/\${timestamp}_stats_${groupname}.log
@@ -105,7 +106,7 @@ STATS30
 qsub <<- ABNORMAL
 	#PBS -S /bin/bash
 	#PBS -q $queue
-	#PBS -l nodes=1:ppn=1:AMD
+	#PBS -l ncpus=1
 	#PBS -l mem=60gb
 	#PBS -l $long_walltime
 	#PBS -o ${logdir}/\${timestamp}_abnormal_${groupname}.log
@@ -127,7 +128,7 @@ echo "start submitting hic job"
 qsub <<- HICWORK
 	#PBS -S /bin/bash
 	#PBS -q $queue
-	#PBS -l nodes=1:ppn=1:AMD
+	#PBS -l ncpus=1
 	#PBS -l mem=60gb
 	#PBS -l $long_walltime
 	#PBS -o ${logdir}/\${timestamp}_hic0_${groupname}.log
@@ -152,7 +153,7 @@ echo "start submitting hic30 job"
 qsub <<- HIC30WORK
 	#PBS -S /bin/bash
 	#PBS -q $queue
-	#PBS -l nodes=1:ppn=1:AMD
+	#PBS -l ncpus=1
 	#PBS -l mem=60gb
 	#PBS -l $long_walltime
 	#PBS -o ${logdir}/\${timestamp}_hic30_${groupname}.log

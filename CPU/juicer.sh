@@ -78,9 +78,9 @@ juiceDir="/opt/juicer"
 # top level directory, can also be set in options
 topDir=$(pwd)
 # restriction enzyme, can also be set in options
-site="MboI"
+site="Arima"
 # genome ID, default to human, can also be set in options
-genomeID="hg19"
+genomeID="hg38"
 # normally both read ends are aligned with long read aligner; 
 # if one end is short, this is set                 
 shortreadend=0
@@ -172,7 +172,7 @@ then
     case $genomeID in
 	mm9) refSeq="${juiceDir}/references/Mus_musculus_assembly9_norandom.fasta";;
 	mm10) refSeq="${juiceDir}/references/Mus_musculus_assembly10.fasta";;
-	hg38) refSeq="${juiceDir}/references/Homo_sapiens_assembly38.fasta";;
+	hg38) refSeq="${juiceDir}/references/genome.fa";;
 	hg19) refSeq="${juiceDir}/references/Homo_sapiens_assembly19.fasta";;
 	
 	*)  echo "$usageHelp"

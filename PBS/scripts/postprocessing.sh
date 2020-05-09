@@ -11,7 +11,7 @@ qsub <<- POSTPROCWRAP
 #PBS -S /bin/bash
 #PBS -q $queue
 #PBS -l $walltime
-#PBS -l nodes=1:ppn=1:AMD
+#PBS -l ncpus=1
 #PBS -l mem=4gb
 #PBS -o ${logdir}/${timestamp}_postproc_wrap_${groupname}.log
 #PBS -j oe
@@ -31,9 +31,10 @@ echo "waitstring4 is : \${waitstring4}"
 timestamp=\$(date +"%s" | cut -c 4-10)
 qsub <<POSTPROCESS
     #PBS -S /bin/bash
-    #PBS -q $queue
+    #PBS -q gpuvolta
     #PBS -l $long_walltime
-    #PBS -l nodes=1:ppn=1:gpus=1:GPU 
+    #PBS -l ncpus=12
+    #PBS -l ngpus=11
     #PBS -l mem=60gb
     #PBS -o ${logdir}/\${timestamp}_postproc_${groupname}.log
     #PBS -j oe
@@ -82,7 +83,7 @@ qsub <<DONE
     #PBS -S /bin/bash
     #PBS -q $queue
     #PBS -l $walltime
-    #PBS -l nodes=1:ppn=1:AMD 
+    #PBS -l ncpus=1 
     #PBS -l mem=4gb
     #PBS -o ${logdir}/\${timestamp}_done_${groupname}.log
     #PBS -j oe
