@@ -82,7 +82,7 @@ def process_args(args):
     print('<restriction enzyme> must be one of {}'.format(list(patterns.keys())), file=sys.stderr)
     usage()
 
-  outputfile = genome + '_' + enzyme + '.txt'
+  outputfile = genome + '_' + enzyme + '_' + inputfile + '.txt'
 
   return {
     'enzyme'     : enzyme,
