@@ -1,10 +1,10 @@
 juiceDir="/lustre1/mzhibo/hic/apps/juicer"
 # default queue, can also be set in options via -q
-queue="batch"
+queue="biodev"
 # default queue time, can also be set in options via -Q
 walltime="walltime=24:00:00"
 # default long queue, can also be set in options via -l
-long_queue="batch"
+long_queue="biodev"
 # default long queue time, can also be set in options via -L
 long_walltime="walltime=120:00:00"
 read1str="_R1"
@@ -38,12 +38,12 @@ read1=${splitdir}"/*${read1str}*.fastq"
     #PBS -S /bin/bash
     #PBS -q $queue
     #PBS -l $walltime
-    #PBS -l nodes=1:ppn=1:AMD
+    #PBS -l ncpus=1
     #PBS -l mem=2gb
     #PBS -o ${logdir}/${timestamp}_alnwrap_${groupname}.log
     #PBS -j oe
     #PBS -N AlnWrap_${groupname}
-    #PBS -M mzhibo@uga.edu
+    ${EMAIL}
     #PBS -m a
     for i in ${read1}
     do
@@ -64,9 +64,9 @@ read1=${splitdir}"/*${read1str}*.fastq"
         #PBS -S /bin/bash
         #PBS -q $queue
         #PBS -l $long_walltime
-        #PBS -l nodes=1:ppn=1:AMD
+        #PBS -l ncpus=1
         #PBS -l mem=24gb
-        #PBS -M mzhibo@uga.edu
+        ${EMAIL}
         #PBS -m a
         #PBS -o ${logdir}/\${timestamp}_\${jname}_merge_\${countjobs}_${groupname}.log
         #PBS -j oe
@@ -113,9 +113,9 @@ MRGALL
     #PBS -S /bin/bash
     #PBS -q $queue
     #PBS -l $walltime
-    #PBS -l nodes=1:ppn=1:AMD
+    #PBS -l ncpus=1
     #PBS -l mem=24gb
-    #PBS -M mzhibo@uga.edu
+    ${EMAIL} 
     #PBS -m a
     #PBS -o ${logdir}/\${timestamp}_\${jname}_chimeric_\${countjobs}_${groupname}.log
     #PBS -j oe
@@ -181,10 +181,10 @@ CHIMERIC
     qsub <<- CKALIGNFAIL
     #PBS -S /bin/bash
     #PBS -q $queue  
-    #PBS -l nodes=1:ppn=1:AMD
+    #PBS -l ncpus=1
     #PBS -l mem=2gb
     #PBS -l $walltime
-    #PBS -M mzhibo@uga.edu
+    ${EMAIL}
     #PBS -m a
     #PBS -o ${logdir}/\${timestamp}_check_alnOK_${groupname}.log
     #PBS -j oe
@@ -199,10 +199,10 @@ CKALIGNFAIL
     qsub <<- CKALIGNFAILCLN
     #PBS -S /bin/bash
     #PBS -q $queue  
-    #PBS -l nodes=1:ppn=1:AMD
+    #PBS -l ncpus=1
     #PBS -l mem=4gb
     #PBS -l $walltime
-    #PBS -M mzhibo@uga.edu
+    ${EMAIL}
     #PBS -m a
     #PBS -o ${logdir}/\${timestamp}_alignfailclean_${groupname}.log
     #PBS -j oe
