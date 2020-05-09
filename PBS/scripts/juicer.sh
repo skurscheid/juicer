@@ -543,7 +543,7 @@ CNTLIG
         #PBS -P pb97        
         #PBS -q $queue
         #PBS -l $walltime
-        #PBS -l ncpus=${threads}:AMD
+        #PBS -l ncpus=${threads}
         #PBS -l mem=\${alloc_mem}
         ${EMAIL}
         #PBS -m a
@@ -595,7 +595,7 @@ ALGNR1
         #PBS -P pb97        
         #PBS -q $queue
         #PBS -l $walltime
-        #PBS -l ncpus=${threads}:AMD
+        #PBS -l ncpus=${threads}
         #PBS -l mem=\$alloc_mem
         ${EMAIL}
         #PBS -m a
