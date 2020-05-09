@@ -43,6 +43,7 @@ read1=${splitdir}"/*${read1str}*.fastq"
     #PBS -o ${logdir}/${timestamp}_alnwrap_${groupname}.log
     #PBS -j oe
     #PBS -N AlnWrap_${groupname}
+    #PBS -l storage=scratch/kv78+gdata/kv78
     ${EMAIL}
     #PBS -m a
     for i in ${read1}
@@ -66,6 +67,7 @@ read1=${splitdir}"/*${read1str}*.fastq"
         #PBS -l $long_walltime
         #PBS -l ncpus=1
         #PBS -l mem=24gb
+        #PBS -l storage=scratch/kv78+gdata/kv78
         ${EMAIL}
         #PBS -m a
         #PBS -o ${logdir}/\${timestamp}_\${jname}_merge_\${countjobs}_${groupname}.log
@@ -115,6 +117,7 @@ MRGALL
     #PBS -l $walltime
     #PBS -l ncpus=1
     #PBS -l mem=24gb
+    #PBS -l storage=scratch/kv78+gdata/kv78
     ${EMAIL} 
     #PBS -m a
     #PBS -o ${logdir}/\${timestamp}_\${jname}_chimeric_\${countjobs}_${groupname}.log
@@ -184,6 +187,7 @@ CHIMERIC
     #PBS -l ncpus=1
     #PBS -l mem=2gb
     #PBS -l $walltime
+    #PBS -l storage=scratch/kv78+gdata/kv78
     ${EMAIL}
     #PBS -m a
     #PBS -o ${logdir}/\${timestamp}_check_alnOK_${groupname}.log
@@ -202,6 +206,7 @@ CKALIGNFAIL
     #PBS -l ncpus=1
     #PBS -l mem=4gb
     #PBS -l $walltime
+    #PBS -l storage=scratch/kv78+gdata/kv78
     ${EMAIL}
     #PBS -m a
     #PBS -o ${logdir}/\${timestamp}_alignfailclean_${groupname}.log

@@ -405,7 +405,7 @@ then
                 #PBS -o ${logdir}/${timestamp}_split_${filename}_${groupname}.log
                 #PBS -e ${logdir}/${timestamp}_split_${filename}_${groupname}.err
                 #PBS -j oe
-
+                #PBS -l storage=scratch/kv78+gdata/kv78
                 #PBS -N split_${filename}_${groupname}
 
                 date +"%Y-%m-%d %H:%M:%S"
@@ -434,6 +434,7 @@ SPLITEND
             #PBS -e ${logdir}/${timestamp}_move_${groupname}.err
             #PBS -j oe
             #PBS -N move_${groupname}
+            #PBS -l storage=scratch/kv78+gdata/kv78
             #PBS -W depend=afterok${jIDs_split}
             date +"%Y-%m-%d %H:%M:%S"
             for j in ${splitdir}/*;do mv \${j} \${j}.fastq;done
@@ -473,6 +474,7 @@ SPLITMV
     #PBS -e ${logdir}/${timestamp}_alnwrap_${groupname}.err
     #PBS -j oe
     #PBS -N AlnWrp${groupname}
+    #PBS -l storage=scratch/kv78+gdata/kv78
     $waitstring_alnwrp
     ${EMAIL}
     #PBS -m a
@@ -511,6 +513,7 @@ SPLITMV
         #PBS -v name2=\${name2}
         #PBS -v ext=\${ext}
         #PBS -v ligation=${ligation}
+        #PBS -l storage=scratch/kv78+gdata/kv78
         #PBS -v usezip=\${usezip}
 
         date +"%Y-%m-%d %H:%M:%S"
@@ -532,9 +535,9 @@ CNTLIG
         alloc_mem_value=\$(( $threads * 5 ))
         alloc_mem=\${alloc_mem_value}"gb"
         #set the max mem cap accordingly to ensure the job resource request meet the cluster-setup
-        if [ \$alloc_mem_value -gt 240 ]
+        if [ \$alloc_mem_value -gt 190 ]
         then
-            alloc_mem=240gb
+            alloc_mem=190gb
         fi
 
         echo "starting read1 alignemnt"
@@ -546,6 +549,7 @@ CNTLIG
         #PBS -l $walltime
         #PBS -l ncpus=${threads}
         #PBS -l mem=\${alloc_mem}
+        #PBS -l storage=scratch/kv78+gdata/kv78
         ${EMAIL}
         #PBS -m a
         #PBS -o ${logdir}/\${timestamp}_\${jname}_align1_\${countjobs}_${groupname}.log
@@ -598,6 +602,7 @@ ALGNR1
         #PBS -l $walltime
         #PBS -l ncpus=${threads}
         #PBS -l mem=\$alloc_mem
+        #PBS -l storage=scratch/kv78+gdata/kv78
         ${EMAIL}
         #PBS -m a
         #PBS -o ${logdir}/\${timestamp}_\${jname}_align2_\${countjobs}_${groupname}.log
@@ -650,6 +655,7 @@ ALGNR2
         #PBS -l $long_walltime
         #PBS -l ncpus=1
         #PBS -l mem=24gb
+        #PBS -l storage=scratch/kv78+gdata/kv78
         ${EMAIL}
         #PBS -m a
         #PBS -o ${logdir}/\${timestamp}_\${jname}_merge_\${countjobs}_${groupname}.log
@@ -727,6 +733,7 @@ MRGALL
     #PBS -l $walltime
     #PBS -l ncpus=1
     #PBS -l mem=24gb
+    #PBS -l storage=scratch/kv78+gdata/kv78
     ${EMAIL}
     #PBS -m a
     #PBS -o ${logdir}/\${timestamp}_\${jname}_chimeric_\${countjobs}_${groupname}.log
@@ -800,6 +807,7 @@ CHIMERIC
     #PBS -l ncpus=1
     #PBS -l mem=2gb
     #PBS -l $walltime
+    #PBS -l storage=scratch/kv78+gdata/kv78
     ${EMAIL}
     #PBS -m a
     #PBS -o ${logdir}/\${timestamp}_check_alnOK_${groupname}.log
@@ -819,6 +827,7 @@ CKALIGNFAIL
     #PBS -l ncpus=1
     #PBS -l mem=4gb
     #PBS -l $walltime
+    #PBS -l storage=scratch/kv78+gdata/kv78
     ${EMAIL}
     #PBS -m a
     #PBS -o ${logdir}/\${timestamp}_alignfailclean_${groupname}.log
@@ -858,6 +867,7 @@ then
     #PBS -l ncpus=1
     #PBS -l mem=24gb
     #PBS -l $walltime
+    #PBS -l storage=scratch/kv78+gdata/kv78
     ${EMAIL}
     #PBS -m a
     #PBS -o ${logdir}/${timestamp}_mergesortwrap_${groupname}.log
@@ -885,6 +895,7 @@ then
         #PBS -l ncpus=1
         #PBS -l mem=24gb
         #PBS -l $walltime
+        #PBS -l storage=scratch/kv78+gdata/kv78
         ${EMAIL}
         #PBS -m a
         #PBS -o ${logdir}/\${timestamp}_fragmerge_${groupname}.log
@@ -916,6 +927,7 @@ MRGSRT
         #PBS -l ncpus=1
         #PBS -l mem=2gb
         #PBS -l $walltime
+        #PBS -l storage=scratch/kv78+gdata/kv78
         ${EMAIL}
         #PBS -m a
         #PBS -o ${logdir}/\${timestamp}_clean1_${groupname}.log
@@ -950,6 +962,7 @@ then
     #PBS -l ncpus=1
     #PBS -l mem=4gb
     #PBS -l $walltime
+    #PBS -l storage=scratch/kv78+gdata/kv78
     ${EMAIL}
     #PBS -m a
     #PBS -o ${logdir}/${timestamp}_rmdupwrap_${groupname}.log
@@ -973,6 +986,7 @@ then
         #PBS -l ncpus=1
         #PBS -l mem=4gb
         #PBS -l $walltime
+        #PBS -l storage=scratch/kv78+gdata/kv78
         ${EMAIL}
         #PBS -m a
         #PBS -o ${logdir}/\${timestamp}_osplit_${groupname}.log
@@ -1021,6 +1035,7 @@ then
         #PBS -l ncpus=1
         #PBS -l mem=16GB
         #PBS -l $walltime
+        #PBS -l storage=scratch/kv78+gdata/kv78
         ${EMAIL}
         #PBS -m a
         #PBS -o ${logdir}/${timestamp}_superwrap1_${groupname}.log
@@ -1069,6 +1084,7 @@ SUPERWRAP1
     #PBS -e ${logdir}/${timestamp}_super_wrap2_${groupname}.err
     #PBS -j oe
     #PBS -N SpWrp2${groupname}
+    #PBS -l storage=scratch/kv78+gdata/kv78
     ${EMAIL}
     #PBS -m a
     ${waitstring6}
@@ -1106,6 +1122,7 @@ else
     #PBS -o ${logdir}/${timestamp}_prep_done_${groupname}.out
     #PBS -e ${logdir}/${timestamp}_prep_done_${groupname}.err
     #PBS -j oe
+    #PBS -l storage=scratch/kv78+gdata/kv78
     ${EMAIL}
     #PBS -m a
     #PBS -N prepd_${groupname}
@@ -1126,6 +1143,7 @@ else
         #PBS -e ${logdir}/\${timestamp}_done_${groupname}.err
         #PBS -j oe
         #PBS -N ${groupname}_done
+        #PBS -l storage=scratch/kv78+gdata/kv78
         ${EMAIL}
         #PBS -m a
         #PBS -W depend=afterok:\${jID_osplit}:\${jID_rmsplit}

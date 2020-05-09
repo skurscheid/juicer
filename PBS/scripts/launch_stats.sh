@@ -38,6 +38,7 @@ qsub <<DOSTAT
 #PBS -e ${logdir}/${timestamp}_launch_${groupname}.err
 #PBS -j oe
 #PBS -N Lnch_${groupname}
+#PBS -l storage=scratch/kv78+gdata/kv78
 ${waitstring2}
 
 date +"%Y-%m-%d %H:%M:%S"
@@ -61,6 +62,7 @@ qsub <<STATS0
 	#PBS -l ncpus=1
 	#PBS -l mem=20gb
 	#PBS -l $walltime
+	#PBS -l storage=scratch/kv78+gdata/kv78
 	\${waitstring22}
 	#PBS -o ${logdir}/\${timestamp}_stats0_${groupname}.log
 	#PBS -j oe
@@ -88,6 +90,7 @@ qsub <<STATS30
 	#PBS -o ${logdir}/\${timestamp}_stats_${groupname}.log
 	#PBS -j oe
 	#PBS -N stats30${groupname}
+	#PBS -l storage=scratch/kv78+gdata/kv78
 	\${waitstring22}
 	
 	date +"%Y-%m-%d %H:%M:%S"
@@ -112,6 +115,7 @@ qsub <<- ABNORMAL
 	#PBS -o ${logdir}/\${timestamp}_abnormal_${groupname}.log
 	#PBS -j oe
 	#PBS -N abnorm_${groupname}
+	#PBS -l storage=scratch/kv78+gdata/kv78
 	\$waitstring22
 	
 	cat $splitdir/*_abnorm.sam > $outputdir/abnormal.sam
@@ -135,6 +139,7 @@ qsub <<- HICWORK
 	#PBS -j oe
 	#PBS -N hic0_${groupname}
 	#PBS -W depend=afterok:\${jID_stats0}
+	#PBS -l storage=scratch/kv78+gdata/kv78
 	
 	date +"%Y-%m-%d %H:%M:%S"
 	echo "finished stats job,now launching the hic job."    
@@ -160,6 +165,7 @@ qsub <<- HIC30WORK
 	#PBS -j oe
 	#PBS -N hic30_${groupname}
 	#PBS -W depend=afterok:\${jID_stats30}
+	#PBS -l storage=scratch/kv78+gdata/kv78
 	
 	date +"%Y-%m-%d %H:%M:%S"
 	$load_java
