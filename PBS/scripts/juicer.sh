@@ -402,6 +402,7 @@ then
                 ${EMAIL}
                 #PBS -m a
                 #PBS -o ${logdir}/${timestamp}_split_${filename}_${groupname}.log
+                #PBS -e ${logdir}/${timestamp}_split_${filename}_${groupname}.err
                 #PBS -j oe
                 #PBS -N split_${filename}_${groupname}
 
@@ -428,6 +429,7 @@ SPLITEND
             ${EMAIL}
             #PBS -m a
             #PBS -o ${logdir}/${timestamp}_move_${groupname}.log
+            #PBS -e ${logdir}/${timestamp}_move_${groupname}.log
             #PBS -j oe
             #PBS -N move_${groupname}
             #PBS -W depend=afterok${jIDs_split}
@@ -466,6 +468,7 @@ SPLITMV
     #PBS -l nodes=1:ppn=1:AMD
     #PBS -l mem=6gb
     #PBS -o ${logdir}/${timestamp}_alnwrap_${groupname}.log
+    #PBS -e ${logdir}/${timestamp}_alnwrap_${groupname}.err
     #PBS -j oe
     #PBS -N AlnWrp${groupname}
     $waitstring_alnwrp
@@ -498,6 +501,7 @@ SPLITMV
         ${EMAIL}
         #PBS -m a
         #PBS -o ${logdir}/\${timestamp}_\${jname}_CntLig_\${countjobs}_${groupname}.log
+        #PBS -e ${logdir}/\${timestamp}_\${jname}_CntLig_\${countjobs}_${groupname}.err
         #PBS -j oe
         #PBS -N CtLig\${countjobs}${groupname}
         #PBS -v name=\${name}
@@ -543,6 +547,7 @@ CNTLIG
         ${EMAIL}
         #PBS -m a
         #PBS -o ${logdir}/\${timestamp}_\${jname}_align1_\${countjobs}_${groupname}.log
+        #PBS -e ${logdir}/\${timestamp}_\${jname}_align1_\${countjobs}_${groupname}.err
         #PBS -j oe
         #PBS -N ALN1\${countjobs}${groupname}
         #PBS -W depend=afterok:\$jID_cntlig
@@ -594,6 +599,7 @@ ALGNR1
         ${EMAIL}
         #PBS -m a
         #PBS -o ${logdir}/\${timestamp}_\${jname}_align2_\${countjobs}_${groupname}.log
+        #PBS -e ${logdir}/\${timestamp}_\${jname}_align2_\${countjobs}_${groupname}.err
         #PBS -j oe
         #PBS -N ALN2\${countjobs}${groupname}
         #PBS -W depend=afterok:\$jID_cntlig
@@ -645,6 +651,7 @@ ALGNR2
         ${EMAIL}
         #PBS -m a
         #PBS -o ${logdir}/\${timestamp}_\${jname}_merge_\${countjobs}_${groupname}.log
+        #PBS -e ${logdir}/\${timestamp}_\${jname}_merge_\${countjobs}_${groupname}.err
         #PBS -j oe
         #PBS -N Mrg\${countjobs}${groupname}
         #PBS -W depend=afterok:\${jID_1}:\${jID_2}
@@ -721,6 +728,7 @@ MRGALL
     ${EMAIL}
     #PBS -m a
     #PBS -o ${logdir}/\${timestamp}_\${jname}_chimeric_\${countjobs}_${groupname}.log
+    #PBS -e ${logdir}/\${timestamp}_\${jname}_chimeric_\${countjobs}_${groupname}.err
     #PBS -j oe
     #PBS -N Chmr\${countjobs}${groupname}
     #PBS -W depend=afterok:\${jID_3}
@@ -793,6 +801,7 @@ CHIMERIC
     ${EMAIL}
     #PBS -m a
     #PBS -o ${logdir}/\${timestamp}_check_alnOK_${groupname}.log
+    #PBS -e ${logdir}/\${timestamp}_check_alnOK_${groupname}.err
     #PBS -j oe
     #PBS -W depend=afterok\${jobIDstring}
     #PBS -N AlnOK_${groupname}
@@ -811,6 +820,7 @@ CKALIGNFAIL
     ${EMAIL}
     #PBS -m a
     #PBS -o ${logdir}/\${timestamp}_alignfailclean_${groupname}.log
+    #PBS -e ${logdir}/\${timestamp}_alignfailclean_${groupname}.err
     #PBS -j oe
     #PBS -W depend=afternotok\${jobIDstring}
     #PBS -N Alncln${groupname}
@@ -849,6 +859,7 @@ then
     ${EMAIL}
     #PBS -m a
     #PBS -o ${logdir}/${timestamp}_mergesortwrap_${groupname}.log
+    #PBS -e ${logdir}/${timestamp}_mergesortwrap_${groupname}.err
     #PBS -j oe
     #PBS -N MStWrp${groupname}
     ${waitstring_mrgsrtwrp}
@@ -875,6 +886,7 @@ then
         ${EMAIL}
         #PBS -m a
         #PBS -o ${logdir}/\${timestamp}_fragmerge_${groupname}.log
+        #PBS -e ${logdir}/\${timestamp}_fragmerge_${groupname}.err
         #PBS -j oe
         #PBS -N frgmrg${groupname}
         \${waitstring_alnOK}
@@ -905,6 +917,7 @@ MRGSRT
         ${EMAIL}
         #PBS -m a
         #PBS -o ${logdir}/\${timestamp}_clean1_${groupname}.log
+        #PBS -e ${logdir}/\${timestamp}_clean1_${groupname}.err
         #PBS -j oe
         #PBS -N clean1${groupname}
         #PBS -W depend=afternotok:\${jID_mrgsrt}
@@ -938,6 +951,7 @@ then
     ${EMAIL}
     #PBS -m a
     #PBS -o ${logdir}/${timestamp}_rmdupwrap_${groupname}.log
+    #PBS -e ${logdir}/${timestamp}_rmdupwrap_${groupname}.err
     #PBS -j oe
     #PBS -N RDpWrp${groupname}
     ${waitstring_RDpWrp}
@@ -960,6 +974,7 @@ then
         ${EMAIL}
         #PBS -m a
         #PBS -o ${logdir}/\${timestamp}_osplit_${groupname}.log
+        #PBS -e ${logdir}/\${timestamp}_osplit_${groupname}.err
         #PBS -j oe
         #PBS -N osplit${groupname}
         #PBS -v timestamp=\${timestamp}
@@ -1007,6 +1022,7 @@ then
         ${EMAIL}
         #PBS -m a
         #PBS -o ${logdir}/${timestamp}_superwrap1_${groupname}.log
+        #PBS -e ${logdir}/${timestamp}_superwrap1_${groupname}.err
         #PBS -j oe
         #PBS -N SpWrp1${groupname}
         ${waitstring0}
@@ -1048,6 +1064,7 @@ SUPERWRAP1
     #PBS -l nodes=1:ppn=1:AMD
     #PBS -l mem=4gb
     #PBS -o ${logdir}/${timestamp}_super_wrap2_${groupname}.log
+    #PBS -e ${logdir}/${timestamp}_super_wrap2_${groupname}.err
     #PBS -j oe
     #PBS -N SpWrp2${groupname}
     ${EMAIL}
@@ -1085,6 +1102,7 @@ else
     #PBS -l nodes=1:ppn=1:AMD 
     #PBS -l mem=1gb
     #PBS -o ${logdir}/${timestamp}_prep_done_${groupname}.out
+    #PBS -e ${logdir}/${timestamp}_prep_done_${groupname}.err
     #PBS -j oe
     ${EMAIL}
     #PBS -m a
@@ -1103,6 +1121,7 @@ else
         #PBS -l nodes=1:ppn=1:AMD 
         #PBS -l mem=1gb
         #PBS -o ${logdir}/\${timestamp}_done_${groupname}.log
+        #PBS -e ${logdir}/\${timestamp}_done_${groupname}.err
         #PBS -j oe
         #PBS -N ${groupname}_done
         ${EMAIL}
