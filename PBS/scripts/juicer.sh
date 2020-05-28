@@ -77,21 +77,21 @@ echo "$0 $@"
 # set global tmpdir so no problems with /var/tmp
 ## use cluster load commands:
 #usePath=""
-load_bwa="module load bwa/0.7.15"
-load_java='module load java/jdk1.8.0_131'
+load_bwa="module load bwa/0.7.17"
+load_java='module load java/jdk-8.40'
 #load_cluster=""
 #load_coreutils=""
-load_cuda='module load cuda/7.5.18/gcc/4.4.7'
+load_cuda='module load cudnn/7.6.5-cuda10.1'
 
 # Juicer directory, contains scripts/, references/, and restriction_sites/
 # can also be set in options via -D
 juiceDir=""
 # default queue, can also be set in options via -q
-queue="batch"
+queue="biodev"
 # default queue time, can also be set in options via -Q
 walltime="walltime=24:00:00"
 # default long queue, can also be set in options via -l
-long_queue="batch"
+long_queue="biodev"
 # default long queue time, can also be set in options via -L
 long_walltime="walltime=120:00:00"
 # size to split fastqs. adjust to match your needs. 4000000=1M reads per split
@@ -99,7 +99,7 @@ long_walltime="walltime=120:00:00"
 # give your email address to be used in #PBS -M to receive notifications when job error occurs.
 # Must be either set with an email address or skipped
 # This email is not included in the launch stat and postprocessing steps, add manually if needed
-EMAIL='#PBS -M xxx@gmail.com'
+EMAIL='#PBS -M skurscheid@gmail.com'
 splitsize=90000000
 # fastq files should look like filename_R1.fastq and filename_R2.fastq
 # if your fastq files look different, change this value
@@ -120,9 +120,9 @@ groupname="C$(date "+%s"|cut -c 6-11)"
 # top level directory, can also be set in options
 topDir=$(pwd)
 # restriction enzyme, can also be set in options
-site="MboI"
+site="Arima"
 # genome ID, default to human, can also be set in options
-genomeID="hg19"
+genomeID="hg38"
 # normally both read ends are aligned with long read aligner;
 # if one end is short, this is set
 shortreadend=0
@@ -218,7 +218,7 @@ then
     case $genomeID in
     mm9) refSeq="${juiceDir}/references/Mus_musculus_assembly9_norandom.fasta";;
     mm10) refSeq="${juiceDir}/references/Mus_musculus_assembly10.fasta";;
-    hg38) refSeq="${juiceDir}/references/hg38.fa";;
+    hg38) refSeq="${juiceDir}/references/genome.fa";;
     hg19) refSeq="${juiceDir}/references/Homo_sapiens_assembly19.fasta";;
     *)  echo "$usageHelp"
         echo "$genomeHelp"
@@ -248,6 +248,7 @@ fi
 
 ## Set ligation junction based on restriction enzyme
 case $site in
+    Arima) ligation="'(GAATAATC|GAATACTC|GAATAGTC|GAATATTC|GAATGATC|GACTAATC|GACTACTC|GACTAGTC|GACTATTC|GACTGATC|GAGTAATC|GAGTACTC|GAGTAGTC|GAGTATTC|GAGTGATC|GATCAATC|GATCACTC|GATCAGTC|GATCATTC|GATCGATC|GATTAATC|GATTACTC|GATTAGTC|GATTATTC|GATTGATC)'";;
     HindIII) ligation="AAGCTAGCTT";;
     DpnII) ligation="GATCGATC";;
     MboI) ligation="GATCGATC";;
@@ -394,15 +395,17 @@ then
                 #submitted job might get delayed due to time in the queue.
                 timestamp=$(date +"%s" | cut -c 4-10)
                 jID_split=$(qsub <<SPLITEND
-                #PBS -S /bin/bash
+                #PBS -P pb97
                 #PBS -q $queue
                 #PBS -l $walltime
-                #PBS -l nodes=1:ppn=1:AMD
+                #PBS -l ncpus=1
                 #PBS -l mem=20gb
                 ${EMAIL}
                 #PBS -m a
                 #PBS -o ${logdir}/${timestamp}_split_${filename}_${groupname}.log
+                #PBS -e ${logdir}/${timestamp}_split_${filename}_${groupname}.err
                 #PBS -j oe
+                #PBS -l storage=scratch/kv78+gdata/kv78
                 #PBS -N split_${filename}_${groupname}
 
                 date +"%Y-%m-%d %H:%M:%S"
@@ -420,16 +423,18 @@ SPLITEND
             ## PBS users change queue below to $queue
             timestamp=$(date +"%s" | cut -c 4-10)
             jID_splitmv=$(qsub << SPLITMV
-            #PBS -S /bin/bash
+            #PBS -P pb97            
             #PBS -q $queue
             #PBS -l $walltime
-            #PBS -l nodes=1:ppn=1:AMD
+            #PBS -l ncpus=1
             #PBS -l mem=20gb
             ${EMAIL}
             #PBS -m a
             #PBS -o ${logdir}/${timestamp}_move_${groupname}.log
+            #PBS -e ${logdir}/${timestamp}_move_${groupname}.err
             #PBS -j oe
             #PBS -N move_${groupname}
+            #PBS -l storage=scratch/kv78+gdata/kv78
             #PBS -W depend=afterok${jIDs_split}
             date +"%Y-%m-%d %H:%M:%S"
             for j in ${splitdir}/*;do mv \${j} \${j}.fastq;done
@@ -460,14 +465,16 @@ SPLITMV
 
     timestamp=$(date +"%s" | cut -c 4-10)
     qsub <<ALIGNWRAP
-    #PBS -S /bin/bash
+    #PBS -P pb97    
     #PBS -q $queue
     #PBS -l $walltime
-    #PBS -l nodes=1:ppn=1:AMD
+    #PBS -l ncpus=1
     #PBS -l mem=6gb
     #PBS -o ${logdir}/${timestamp}_alnwrap_${groupname}.log
+    #PBS -e ${logdir}/${timestamp}_alnwrap_${groupname}.err
     #PBS -j oe
     #PBS -N AlnWrp${groupname}
+    #PBS -l storage=scratch/kv78+gdata/kv78
     $waitstring_alnwrp
     ${EMAIL}
     #PBS -m a
@@ -490,14 +497,15 @@ SPLITMV
         ## count ligations
         timestamp=\$(date +"%s" | cut -c 4-10)
         qsub <<-CNTLIG
-        #PBS -S /bin/bash
+        #PBS -P pb97        
         #PBS -q $queue
         #PBS -l $walltime
-        #PBS -l nodes=1:ppn=1:AMD
+        #PBS -l ncpus=1
         #PBS -l mem=4gb
         ${EMAIL}
         #PBS -m a
         #PBS -o ${logdir}/\${timestamp}_\${jname}_CntLig_\${countjobs}_${groupname}.log
+        #PBS -e ${logdir}/\${timestamp}_\${jname}_CntLig_\${countjobs}_${groupname}.err
         #PBS -j oe
         #PBS -N CtLig\${countjobs}${groupname}
         #PBS -v name=\${name}
@@ -505,6 +513,7 @@ SPLITMV
         #PBS -v name2=\${name2}
         #PBS -v ext=\${ext}
         #PBS -v ligation=${ligation}
+        #PBS -l storage=scratch/kv78+gdata/kv78
         #PBS -v usezip=\${usezip}
 
         date +"%Y-%m-%d %H:%M:%S"
@@ -526,23 +535,25 @@ CNTLIG
         alloc_mem_value=\$(( $threads * 5 ))
         alloc_mem=\${alloc_mem_value}"gb"
         #set the max mem cap accordingly to ensure the job resource request meet the cluster-setup
-        if [ \$alloc_mem_value -gt 240 ]
+        if [ \$alloc_mem_value -gt 190 ]
         then
-            alloc_mem=240gb
+            alloc_mem=190gb
         fi
 
         echo "starting read1 alignemnt"
 
         timestamp=\$(date +"%s" | cut -c 4-10)
         qsub <<ALGNR1
-        #PBS -S /bin/bash
+        #PBS -P pb97        
         #PBS -q $queue
         #PBS -l $walltime
-        #PBS -l nodes=1:ppn=${threads}:AMD
+        #PBS -l ncpus=${threads}
         #PBS -l mem=\${alloc_mem}
+        #PBS -l storage=scratch/kv78+gdata/kv78
         ${EMAIL}
         #PBS -m a
         #PBS -o ${logdir}/\${timestamp}_\${jname}_align1_\${countjobs}_${groupname}.log
+        #PBS -e ${logdir}/\${timestamp}_\${jname}_align1_\${countjobs}_${groupname}.err
         #PBS -j oe
         #PBS -N ALN1\${countjobs}${groupname}
         #PBS -W depend=afterok:\$jID_cntlig
@@ -586,14 +597,16 @@ ALGNR1
         # align read2 fastq
         timestamp=\$(date +"%s" | cut -c 4-10)
         qsub <<ALGNR2
-        #PBS -S /bin/bash
+        #PBS -P pb97        
         #PBS -q $queue
         #PBS -l $walltime
-        #PBS -l nodes=1:ppn=${threads}:AMD
+        #PBS -l ncpus=${threads}
         #PBS -l mem=\$alloc_mem
+        #PBS -l storage=scratch/kv78+gdata/kv78
         ${EMAIL}
         #PBS -m a
         #PBS -o ${logdir}/\${timestamp}_\${jname}_align2_\${countjobs}_${groupname}.log
+        #PBS -e ${logdir}/\${timestamp}_\${jname}_align2_\${countjobs}_${groupname}.err
         #PBS -j oe
         #PBS -N ALN2\${countjobs}${groupname}
         #PBS -W depend=afterok:\$jID_cntlig
@@ -637,14 +650,16 @@ ALGNR2
         # wait for align1 and align2 jobs finish,then merge
         timestamp=\$(date +"%s" | cut -c 4-10)
         qsub <<- MRGALL
-        #PBS -S /bin/bash
+        #PBS -P pb97        
         #PBS -q $queue
         #PBS -l $long_walltime
-        #PBS -l nodes=1:ppn=1:AMD
+        #PBS -l ncpus=1
         #PBS -l mem=24gb
+        #PBS -l storage=scratch/kv78+gdata/kv78
         ${EMAIL}
         #PBS -m a
         #PBS -o ${logdir}/\${timestamp}_\${jname}_merge_\${countjobs}_${groupname}.log
+        #PBS -e ${logdir}/\${timestamp}_\${jname}_merge_\${countjobs}_${groupname}.err
         #PBS -j oe
         #PBS -N Mrg\${countjobs}${groupname}
         #PBS -W depend=afterok:\${jID_1}:\${jID_2}
@@ -713,14 +728,16 @@ MRGALL
     echo "starting chimeric step after alignment"
     timestamp=\$(date +"%s" | cut -c 4-10)
     qsub <<- CHIMERIC
-    #PBS -S /bin/bash
+    #PBS -P pb97    
     #PBS -q $queue
     #PBS -l $walltime
-    #PBS -l nodes=1:ppn=1:AMD
+    #PBS -l ncpus=1
     #PBS -l mem=24gb
+    #PBS -l storage=scratch/kv78+gdata/kv78
     ${EMAIL}
     #PBS -m a
     #PBS -o ${logdir}/\${timestamp}_\${jname}_chimeric_\${countjobs}_${groupname}.log
+    #PBS -e ${logdir}/\${timestamp}_\${jname}_chimeric_\${countjobs}_${groupname}.err
     #PBS -j oe
     #PBS -N Chmr\${countjobs}${groupname}
     #PBS -W depend=afterok:\${jID_3}
@@ -785,14 +802,16 @@ CHIMERIC
     # output an error message of error detection and killing the remaining jobs
     timestamp=\$(date +"%s" | cut -c 4-10)
     qsub <<- CKALIGNFAIL
-    #PBS -S /bin/bash
+    #PBS -P pb97    
     #PBS -q $queue  
-    #PBS -l nodes=1:ppn=1:AMD
+    #PBS -l ncpus=1
     #PBS -l mem=2gb
     #PBS -l $walltime
+    #PBS -l storage=scratch/kv78+gdata/kv78
     ${EMAIL}
     #PBS -m a
     #PBS -o ${logdir}/\${timestamp}_check_alnOK_${groupname}.log
+    #PBS -e ${logdir}/\${timestamp}_check_alnOK_${groupname}.err
     #PBS -j oe
     #PBS -W depend=afterok\${jobIDstring}
     #PBS -N AlnOK_${groupname}
@@ -803,14 +822,16 @@ CKALIGNFAIL
 
     timestamp=\$(date +"%s" | cut -c 4-10)
     qsub <<- CKALIGNFAILCLN
-    #PBS -S /bin/bash
+    #PBS -P pb97    
     #PBS -q $queue  
-    #PBS -l nodes=1:ppn=1:AMD
+    #PBS -l ncpus=1
     #PBS -l mem=4gb
     #PBS -l $walltime
+    #PBS -l storage=scratch/kv78+gdata/kv78
     ${EMAIL}
     #PBS -m a
     #PBS -o ${logdir}/\${timestamp}_alignfailclean_${groupname}.log
+    #PBS -e ${logdir}/\${timestamp}_alignfailclean_${groupname}.err
     #PBS -j oe
     #PBS -W depend=afternotok\${jobIDstring}
     #PBS -N Alncln${groupname}
@@ -841,14 +862,16 @@ then
     ## change queue below to $long_queue
     timestamp=$(date +"%s" | cut -c 4-10)
     qsub <<MRGSRTWRAP
-    #PBS -S /bin/bash
+    #PBS -P pb97    
     #PBS -q $queue  
-    #PBS -l nodes=1:ppn=1:AMD
+    #PBS -l ncpus=1
     #PBS -l mem=24gb
     #PBS -l $walltime
+    #PBS -l storage=scratch/kv78+gdata/kv78
     ${EMAIL}
     #PBS -m a
     #PBS -o ${logdir}/${timestamp}_mergesortwrap_${groupname}.log
+    #PBS -e ${logdir}/${timestamp}_mergesortwrap_${groupname}.err
     #PBS -j oe
     #PBS -N MStWrp${groupname}
     ${waitstring_mrgsrtwrp}
@@ -867,14 +890,16 @@ then
     echo "below with backslash"
     echo \${waitstring_alnOK}
     qsub <<MRGSRT
-        #PBS -S /bin/bash
+        #PBS -P pb97        
         #PBS -q $queue  
-        #PBS -l nodes=1:ppn=1:AMD
+        #PBS -l ncpus=1
         #PBS -l mem=24gb
         #PBS -l $walltime
+        #PBS -l storage=scratch/kv78+gdata/kv78
         ${EMAIL}
         #PBS -m a
         #PBS -o ${logdir}/\${timestamp}_fragmerge_${groupname}.log
+        #PBS -e ${logdir}/\${timestamp}_fragmerge_${groupname}.err
         #PBS -j oe
         #PBS -N frgmrg${groupname}
         \${waitstring_alnOK}
@@ -897,14 +922,16 @@ MRGSRT
         ##kill all remaining jobs if previous mergesort step exited with error
         timestamp=\$(date +"%s" | cut -c 4-10)
         qsub <<MRGSRTFAILCK
-        #PBS -S /bin/bash
+        #PBS -P pb97        
         #PBS -q $queue  
-        #PBS -l nodes=1:ppn=1:AMD
+        #PBS -l ncpus=1
         #PBS -l mem=2gb
         #PBS -l $walltime
+        #PBS -l storage=scratch/kv78+gdata/kv78
         ${EMAIL}
         #PBS -m a
         #PBS -o ${logdir}/\${timestamp}_clean1_${groupname}.log
+        #PBS -e ${logdir}/\${timestamp}_clean1_${groupname}.err
         #PBS -j oe
         #PBS -N clean1${groupname}
         #PBS -W depend=afternotok:\${jID_mrgsrt}
@@ -930,14 +957,16 @@ then
     ##remove duplicates from the big sorted file if merge sorted job exited successfully
     timestamp=$(date +"%s" | cut -c 4-10)
     qsub <<RMDUPWRAP
-    #PBS -S /bin/bash
+    #PBS -P pb97    
     #PBS -q $queue  
-    #PBS -l nodes=1:ppn=1:AMD
+    #PBS -l ncpus=1
     #PBS -l mem=4gb
     #PBS -l $walltime
+    #PBS -l storage=scratch/kv78+gdata/kv78
     ${EMAIL}
     #PBS -m a
     #PBS -o ${logdir}/${timestamp}_rmdupwrap_${groupname}.log
+    #PBS -e ${logdir}/${timestamp}_rmdupwrap_${groupname}.err
     #PBS -j oe
     #PBS -N RDpWrp${groupname}
     ${waitstring_RDpWrp}
@@ -952,14 +981,16 @@ then
     echo "waitstring_osplit is:\${waitstring_osplit}"
     timestamp=\$(date +"%s" | cut -c 4-10)
     qsub <<RMDUPLICATE
-        #PBS -S /bin/bash
+        #PBS -P pb97        
         #PBS -q $queue  
-        #PBS -l nodes=1:ppn=1:AMD
+        #PBS -l ncpus=1
         #PBS -l mem=4gb
         #PBS -l $walltime
+        #PBS -l storage=scratch/kv78+gdata/kv78
         ${EMAIL}
         #PBS -m a
         #PBS -o ${logdir}/\${timestamp}_osplit_${groupname}.log
+        #PBS -e ${logdir}/\${timestamp}_osplit_${groupname}.err
         #PBS -j oe
         #PBS -N osplit${groupname}
         #PBS -v timestamp=\${timestamp}
@@ -999,14 +1030,16 @@ then
         echo "waitstring0 is: $waitstring0"
         timestamp=$(date +"%s" | cut -c 4-10)
 		qsub <<SUPERWRAP1
-        #PBS -S /bin/bash
+        #PBS -P pb97        
         #PBS -q $queue
-        #PBS -l nodes=1:ppn=1:AMD
-        #PBS -l mem=1gb
+        #PBS -l ncpus=1
+        #PBS -l mem=16GB
         #PBS -l $walltime
+        #PBS -l storage=scratch/kv78+gdata/kv78
         ${EMAIL}
         #PBS -m a
         #PBS -o ${logdir}/${timestamp}_superwrap1_${groupname}.log
+        #PBS -e ${logdir}/${timestamp}_superwrap1_${groupname}.err
         #PBS -j oe
         #PBS -N SpWrp1${groupname}
         ${waitstring0}
@@ -1042,14 +1075,16 @@ SUPERWRAP1
 
     timestamp=$(date +"%s" | cut -c 4-10)
     qsub <<SUPERWRAP2
-    #PBS -S /bin/bash
+    #PBS -P pb97    
     #PBS -q $queue
     #PBS -l $walltime
-    #PBS -l nodes=1:ppn=1:AMD
+    #PBS -l ncpus=1
     #PBS -l mem=4gb
     #PBS -o ${logdir}/${timestamp}_super_wrap2_${groupname}.log
+    #PBS -e ${logdir}/${timestamp}_super_wrap2_${groupname}.err
     #PBS -j oe
     #PBS -N SpWrp2${groupname}
+    #PBS -l storage=scratch/kv78+gdata/kv78
     ${EMAIL}
     #PBS -m a
     ${waitstring6}
@@ -1079,13 +1114,15 @@ else
     echo "earlyexit is set, stat,hic, and postprocess were not done."
     timestamp=$(date +"%s" | cut -c 4-10)
     qsub <<FINCK2
-    #PBS -S /bin/bash
+    #PBS -P pb97    
     #PBS -q $queue
     #PBS -l $walltime
-    #PBS -l nodes=1:ppn=1:AMD 
-    #PBS -l mem=1gb
+    #PBS -l ncpus=1 
+    #PBS -l mem=16GB
     #PBS -o ${logdir}/${timestamp}_prep_done_${groupname}.out
+    #PBS -e ${logdir}/${timestamp}_prep_done_${groupname}.err
     #PBS -j oe
+    #PBS -l storage=scratch/kv78+gdata/kv78
     ${EMAIL}
     #PBS -m a
     #PBS -N prepd_${groupname}
@@ -1097,14 +1134,16 @@ else
     wait
     timestamp=\$(date +"%s" | cut -c 4-10)
     qsub <<PREPDONE
-        #PBS -S /bin/bash
+        #PBS -P pb97        
         #PBS -q $queue
         #PBS -l $walltime
-        #PBS -l nodes=1:ppn=1:AMD 
-        #PBS -l mem=1gb
+        #PBS -l ncpus=1 
+        #PBS -l mem=16GB
         #PBS -o ${logdir}/\${timestamp}_done_${groupname}.log
+        #PBS -e ${logdir}/\${timestamp}_done_${groupname}.err
         #PBS -j oe
         #PBS -N ${groupname}_done
+        #PBS -l storage=scratch/kv78+gdata/kv78
         ${EMAIL}
         #PBS -m a
         #PBS -W depend=afterok:\${jID_osplit}:\${jID_rmsplit}

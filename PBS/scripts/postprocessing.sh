@@ -11,11 +11,12 @@ qsub <<- POSTPROCWRAP
 #PBS -S /bin/bash
 #PBS -q $queue
 #PBS -l $walltime
-#PBS -l nodes=1:ppn=1:AMD
+#PBS -l ncpus=1
 #PBS -l mem=4gb
 #PBS -o ${logdir}/${timestamp}_postproc_wrap_${groupname}.log
 #PBS -j oe
 #PBS -N PPrWrp${groupname}
+#PBS -l storage=scratch/kv78+gdata/kv78
 ${waitstring3}
 
 date +"%Y-%m-%d %H:%M:%S"
@@ -31,13 +32,15 @@ echo "waitstring4 is : \${waitstring4}"
 timestamp=\$(date +"%s" | cut -c 4-10)
 qsub <<POSTPROCESS
     #PBS -S /bin/bash
-    #PBS -q $queue
+    #PBS -q gpuvolta
     #PBS -l $long_walltime
-    #PBS -l nodes=1:ppn=1:gpus=1:GPU 
+    #PBS -l ncpus=12
+    #PBS -l ngpus=11
     #PBS -l mem=60gb
     #PBS -o ${logdir}/\${timestamp}_postproc_${groupname}.log
     #PBS -j oe
     #PBS -N PProc_${groupname}
+    #PBS -l storage=scratch/kv78+gdata/kv78
     \$waitstring4
 
     date +"%Y-%m-%d %H:%M:%S"
@@ -64,6 +67,7 @@ qsub <<- FINCK
 #PBS -j oe
 #PBS -N Pdone_${groupname}
 #PBS -W depend=afterok:${jID_postprocwrap}
+#PBS -l storage=scratch/kv78+gdata/kv78
 
 date +"%Y-%m-%d %H:%M:%S"    
 jID_hic30=\$(qstat | grep hic30_${groupname} |cut -d ' ' -f 1)
@@ -82,11 +86,12 @@ qsub <<DONE
     #PBS -S /bin/bash
     #PBS -q $queue
     #PBS -l $walltime
-    #PBS -l nodes=1:ppn=1:AMD 
+    #PBS -l ncpus=1 
     #PBS -l mem=4gb
     #PBS -o ${logdir}/\${timestamp}_done_${groupname}.log
     #PBS -j oe
     #PBS -N done_${groupname}
+    #PBS -l storage=scratch/kv78+gdata/kv78
     \${waitstring5}
 
     date +"%Y-%m-%d %H:%M:%S"    

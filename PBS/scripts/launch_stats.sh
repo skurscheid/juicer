@@ -30,13 +30,15 @@ echo $waitstring2
 timestamp=$(date +"%s" | cut -c 4-10)
 qsub <<DOSTAT
 #PBS -S /bin/bash
-#PBS -q batch
-#PBS -l nodes=1:ppn=1:AMD
+#PBS -q biodev
+#PBS -l ncpus=1
 #PBS -l mem=1gb
 #PBS -l $walltime
 #PBS -o ${logdir}/${timestamp}_launch_${groupname}.log
+#PBS -e ${logdir}/${timestamp}_launch_${groupname}.err
 #PBS -j oe
 #PBS -N Lnch_${groupname}
+#PBS -l storage=scratch/kv78+gdata/kv78
 ${waitstring2}
 
 date +"%Y-%m-%d %H:%M:%S"
@@ -57,9 +59,10 @@ echo "start sbumitting stats job"
 qsub <<STATS0
 	#PBS -S /bin/bash
 	#PBS -q $queue
-	#PBS -l nodes=1:ppn=1:AMD
+	#PBS -l ncpus=1
 	#PBS -l mem=20gb
 	#PBS -l $walltime
+	#PBS -l storage=scratch/kv78+gdata/kv78
 	\${waitstring22}
 	#PBS -o ${logdir}/\${timestamp}_stats0_${groupname}.log
 	#PBS -j oe
@@ -81,12 +84,13 @@ STATS0
 qsub <<STATS30
 	#PBS -S /bin/bash
 	#PBS -q $queue
-	#PBS -l nodes=1:ppn=1:AMD
+	#PBS -l ncpus=1
 	#PBS -l mem=20gb
 	#PBS -l $walltime
 	#PBS -o ${logdir}/\${timestamp}_stats_${groupname}.log
 	#PBS -j oe
 	#PBS -N stats30${groupname}
+	#PBS -l storage=scratch/kv78+gdata/kv78
 	\${waitstring22}
 	
 	date +"%Y-%m-%d %H:%M:%S"
@@ -105,12 +109,13 @@ STATS30
 qsub <<- ABNORMAL
 	#PBS -S /bin/bash
 	#PBS -q $queue
-	#PBS -l nodes=1:ppn=1:AMD
+	#PBS -l ncpus=1
 	#PBS -l mem=60gb
 	#PBS -l $long_walltime
 	#PBS -o ${logdir}/\${timestamp}_abnormal_${groupname}.log
 	#PBS -j oe
 	#PBS -N abnorm_${groupname}
+	#PBS -l storage=scratch/kv78+gdata/kv78
 	\$waitstring22
 	
 	cat $splitdir/*_abnorm.sam > $outputdir/abnormal.sam
@@ -127,13 +132,14 @@ echo "start submitting hic job"
 qsub <<- HICWORK
 	#PBS -S /bin/bash
 	#PBS -q $queue
-	#PBS -l nodes=1:ppn=1:AMD
+	#PBS -l ncpus=1
 	#PBS -l mem=60gb
 	#PBS -l $long_walltime
 	#PBS -o ${logdir}/\${timestamp}_hic0_${groupname}.log
 	#PBS -j oe
 	#PBS -N hic0_${groupname}
 	#PBS -W depend=afterok:\${jID_stats0}
+	#PBS -l storage=scratch/kv78+gdata/kv78
 	
 	date +"%Y-%m-%d %H:%M:%S"
 	echo "finished stats job,now launching the hic job."    
@@ -152,13 +158,14 @@ echo "start submitting hic30 job"
 qsub <<- HIC30WORK
 	#PBS -S /bin/bash
 	#PBS -q $queue
-	#PBS -l nodes=1:ppn=1:AMD
+	#PBS -l ncpus=1
 	#PBS -l mem=60gb
 	#PBS -l $long_walltime
 	#PBS -o ${logdir}/\${timestamp}_hic30_${groupname}.log
 	#PBS -j oe
 	#PBS -N hic30_${groupname}
 	#PBS -W depend=afterok:\${jID_stats30}
+	#PBS -l storage=scratch/kv78+gdata/kv78
 	
 	date +"%Y-%m-%d %H:%M:%S"
 	$load_java

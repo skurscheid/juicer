@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Generate site positions in genome from given restriction enzyme
 # Juicer 1.5
@@ -22,10 +22,8 @@ def process_args(args):
   # elements into this dictionary.
 
   filenames = {
-    'hg19': '/seq/references/Homo_sapiens_assembly19.fasta',
-    'mm9' : '/seq/references/Mus_musculus_assembly9.fasta',
     'mm10': '/seq/references/Mus_musculus_assembly10.fasta',
-    'hg18': '/seq/references/Homo_sapiens_assembly18.fasta',
+    'hg38': '/home/150/sxk150/data/References/Genomes/Homo_sapiens/GRCh38_ensembl84/canonical/genome.fa',
   }
 
   # Enzyme to search pattern mappings
@@ -84,7 +82,7 @@ def process_args(args):
     print('<restriction enzyme> must be one of {}'.format(list(patterns.keys())), file=sys.stderr)
     usage()
 
-  outputfile = genome + '_' + enzyme + '.txt'
+  outputfile = genome + '_' + enzyme + '_' + inputfile + '.txt'
 
   return {
     'enzyme'     : enzyme,
