@@ -74,7 +74,7 @@ read2str="_R2"
 
 # Juicer directory, contains scripts/, references/, and restriction_sites/
 # can also be set in options via -D
-juiceDir="/opt/juicer"
+juiceDir="/home/150/sxk150/software/bin/juicer"
 # top level directory, can also be set in options
 topDir=$(pwd)
 # restriction enzyme, can also be set in options
